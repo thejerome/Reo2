@@ -41,9 +41,9 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             BigDecimal solutionK = solution.getK();
             BigDecimal solutionN = solution.getN();
 
-            boolean isKOk = realK.subtract(solutionK).compareTo(ZERO) == 0;
-            boolean isNOk = realN.subtract(solutionN).compareTo(ZERO) == 0;
-            boolean isQOk = realQ.subtract(solutionQ).compareTo(ZERO) == 0;
+            boolean isKOk = realK.subtract(solutionK).abs().compareTo(bd(0.01)) <= 0;
+            boolean isNOk = realN.subtract(solutionN).abs().compareTo(bd(0.01)) <= 0;
+            boolean isQOk = realQ.subtract(solutionQ).abs().compareTo(realQ.multiply(bd(0.01))) <= 0;
 
             if(isKOk && isNOk){
                 if (isQOk){
