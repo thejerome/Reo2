@@ -10,8 +10,6 @@ import vlab.server_java.model.tool.ToolModel;
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.ZERO;
 import static vlab.server_java.model.util.Util.bd;
 import static vlab.server_java.model.util.Util.escapeParam;
 import static vlab.server_java.model.util.Util.prepareInputJsonString;
@@ -36,7 +34,8 @@ public class CalculateProcessorImpl implements CalculateProcessor {
                     solution.getDelta_p(),
                     solution.getTube_radius(),
                     variant.getTube_length(),
-                    solution.getMu()
+                    solution.getK(),
+                    solution.getN()
             );
 
             TimeUnit.SECONDS.sleep(4);

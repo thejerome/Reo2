@@ -3,23 +3,18 @@ package vlab.server_java.check;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import rlcp.check.ConditionForChecking;
 import rlcp.generate.GeneratingResult;
-import rlcp.server.processor.check.CheckProcessor;
-import rlcp.server.processor.check.PreCheckProcessor;
 import rlcp.server.processor.check.PreCheckProcessor.PreCheckResult;
 import rlcp.server.processor.check.PreCheckResultAwareCheckProcessor;
 import vlab.server_java.model.Solution;
 import vlab.server_java.model.Variant;
 import vlab.server_java.model.tool.ToolModel;
-import vlab.server_java.model.util.Util;
 
 import java.math.BigDecimal;
 
 import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
 import static vlab.server_java.model.util.Util.bd;
 import static vlab.server_java.model.util.Util.prepareInputJsonString;
-import static vlab.server_java.model.util.Util.unescapeParam;
 
 /**
  * Simple CheckProcessor implementation. Supposed to be changed as needed to provide
@@ -37,16 +32,20 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
 
             Solution solution = mapper.readValue(prepareInputJsonString(instructions), Solution.class);
             Variant variant = mapper.readValue(prepareInputJsonString(generatingResult.getCode()), Variant.class);
-            BigDecimal realMu = new BigDecimal(prepareInputJsonString(generatingResult.getInstructions()));
+            String[] secret = prepareInputJsonString(generatingResult.getInstructions()).split(":");
+            BigDecimal realK = new BigDecimal(secret[0]);
+            BigDecimal realN = new BigDecimal(secret[1]);
             BigDecimal realQ = variant.getNeeded_Q();
 
-            BigDecimal solutionQ = ToolModel.getQ(solution.getDelta_p(), solution.getTube_radius(), variant.getTube_length(), realMu);
-            BigDecimal solutionMu = solution.getMu();
+            BigDecimal solutionQ = ToolModel.getQ(solution.getDelta_p(), solution.getTube_radius(), variant.getTube_length(), realK, realN);
+            BigDecimal solutionK = solution.getK();
+            BigDecimal solutionN = solution.getN();
 
-            boolean isMuOk = realMu.subtract(solutionMu).compareTo(ZERO) == 0;
+            boolean isKOk = realK.subtract(solutionK).compareTo(ZERO) == 0;
+            boolean isNOk = realN.subtract(solutionN).compareTo(ZERO) == 0;
             boolean isQOk = realQ.subtract(solutionQ).compareTo(ZERO) == 0;
 
-            if(isMuOk){
+            if(isKOk && isNOk){
                 if (isQOk){
                     points = ONE;
                     comment = "Ok";
@@ -58,9 +57,10 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                 }
             } else {
                 points = ZERO;
-                comment = "Неверно рассчитан коэффициент динамической вязкости. Полученное значение: "
-                        + solution.getMu()
-                        + ", а верное значение составляет: " + realMu;
+                comment = "Неверно рассчитаны коэффициенты. Полученные значения: "
+                        + solution.getK() + "; " + solution.getN()
+                        + ", а верные значения составляют: "
+                        + realK + "; " + realN;
             }
 
         } catch (Exception e){

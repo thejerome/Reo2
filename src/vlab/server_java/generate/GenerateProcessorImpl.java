@@ -8,13 +8,11 @@ import vlab.server_java.model.Variant;
 
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.PI;
+import static java.lang.Math.log10;
 import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
 import static java.math.RoundingMode.HALF_DOWN;
@@ -32,9 +30,9 @@ public class GenerateProcessorImpl implements GenerateProcessor {
 
 
     Random random = new Random(System.nanoTime());
-    private static int tauGammaPairsAmount = 8;
-    private static int gammaMinStep = 15;
-    private static int gammaMaxStep = 35;
+    private static int tauGammaPairsAmount = 11;
+    private static int gammaMinStep = 12;
+    private static int gammaMaxStep = 28;
 
     @Override
     public GeneratingResult generate(String condition) {
@@ -58,19 +56,24 @@ public class GenerateProcessorImpl implements GenerateProcessor {
 
 //            0.37 Па.с
 
-            BigDecimal mu = bd(getRandomDoubleBetween(0.01, 1.5));
-            BigDecimal tubeLength = bd(getRandomIntegerBetween(10, 100));
+            BigDecimal k = bd(getRandomDoubleBetween(0.5, 0.9));
+            BigDecimal n = bd(getRandomDoubleBetween(0.5, 0.9));
+            BigDecimal tubeLength = bd(getRandomIntegerBetween(200, 300));
             BigDecimal ro = bd(getRandomIntegerBetween(1000, 1500));
 
             BigDecimal randomTubeRadius = bd(getRandomDoubleBetween(0.1, 0.2));
             BigDecimal randomDelta_p = bd(getRandomDoubleBetween(200, 500));
 
-            BigDecimal needed_Q = getQ(randomDelta_p, randomTubeRadius, tubeLength, mu);
-
-            BigDecimal v_cr = needed_Q.divide(bd(PI).multiply(bd(0.2)), HALF_UP);
-            BigDecimal recr = v_cr.multiply(bd(2)).multiply(bd(0.2)).multiply(ro).divide(mu, HALF_UP);
+            BigDecimal needed_Q = null;
 
 
+            //BigDecimal v_cr = needed_Q.divide(bd(PI).multiply(bd(0.2)), HALF_UP);
+            //BigDecimal recr = v_cr.multiply(bd(2)).multiply(bd(0.2)).multiply(ro).divide(k, HALF_UP);
+
+
+            System.out.println("n = " + n);
+            System.out.println("k = " + k);
+            System.out.println("vvvvvvvvvvvvvvvvvvvvvv");
 
 
 
@@ -78,14 +81,16 @@ public class GenerateProcessorImpl implements GenerateProcessor {
             int previousGamma = 0;
             int gamma = 0;
             for (int i = 0; i < tauGammaPairsAmount; i++) {
+                gamma = getRandomIntegerBetween(gammaMinStep, gammaMaxStep) + previousGamma;
+
                 BigDecimal bdGamma = bd(gamma);
-                BigDecimal bdTau = bdGamma.multiply(mu);
+                BigDecimal bdTau = shrink(bd(Math.pow(bdGamma.doubleValue(), n.doubleValue()))).multiply(k);
 
                 BigDecimal[] tauGammaPair = {bdTau, bdGamma};
                 tauGammaPairs.add(tauGammaPair);
 
                 previousGamma = gamma;
-                gamma = getRandomIntegerBetween(gammaMinStep, gammaMaxStep) + previousGamma;
+
             }
 
             {
@@ -139,7 +144,28 @@ public class GenerateProcessorImpl implements GenerateProcessor {
                 BigDecimal tauSum = tauGammaPairs.stream().map(tg -> tg[0]).reduce((a,b) -> a.add(b)).get();
                 BigDecimal gammaSum = tauGammaPairs.stream().map(tg -> tg[1]).reduce((a, b) -> a.add(b)).get();
 
-                mu = shrink(tauSum.divide(gammaSum, HALF_UP));
+                double firstHalflogTauSum = tauGammaPairs.stream().limit(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[0].doubleValue())).sum();
+                double secondHalflogTauSum = tauGammaPairs.stream().skip(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[0].doubleValue())).sum();
+
+                double firstHalflogGammaSum = tauGammaPairs.stream().limit(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[1].doubleValue())).sum();
+                double secondHalflogGammaSum = tauGammaPairs.stream().skip(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[1].doubleValue())).sum();
+
+                double doubleN = (firstHalflogTauSum - secondHalflogTauSum) / (firstHalflogGammaSum - secondHalflogGammaSum);
+                double doubleK = Math.pow(10, ((firstHalflogTauSum + secondHalflogTauSum) - n.doubleValue() * (firstHalflogGammaSum + secondHalflogGammaSum)) / (tauGammaPairsAmount - 1));
+
+
+
+                n = shrink(bd(doubleN));
+                k = shrink(bd(doubleK));
+
+                System.out.println("n = " + n);
+                System.out.println("k = " + k);
+                System.out.println();
+
+                needed_Q = getQ(randomDelta_p, randomTubeRadius, tubeLength, k, n);
+
+                System.out.println("needed_Q = " + needed_Q);
+
             }
 
 
@@ -147,7 +173,7 @@ public class GenerateProcessorImpl implements GenerateProcessor {
 
 
             code = mapper.writeValueAsString(variant);
-            instructions = mu.toString();
+            instructions = k.toString() + ":" + n.toString();
         } catch (JsonProcessingException e) {
             code = "Failed, " + e.getOriginalMessage();
         }

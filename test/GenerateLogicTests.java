@@ -116,6 +116,7 @@ public class GenerateLogicTests {
 
         int counter = 0;
         BigDecimal min = BigDecimal.ONE;
+        BigDecimal max = BigDecimal.ONE;
 
         for (int i = 0; i < 10000; i++) {
             System.out.println(i);
@@ -123,6 +124,8 @@ public class GenerateLogicTests {
             Variant variant = mapper.readValue(prepareInputJsonString(generatingResult.getCode()), Variant.class);
 
             System.out.println(variant.getNeeded_Q());
+            System.out.println();
+            System.out.println();
 
             if (variant.getNeeded_Q().compareTo(bd(0.001)) < 1){
                 counter++;
@@ -132,10 +135,14 @@ public class GenerateLogicTests {
                 min = variant.getNeeded_Q();
             }
 
+            if(variant.getNeeded_Q().compareTo(max) > 0){
+                max = variant.getNeeded_Q();
+            }
         }
 
         System.out.println();
         System.out.println(min);
+        System.out.println(max);
 
         assertEquals(0, counter);
 
