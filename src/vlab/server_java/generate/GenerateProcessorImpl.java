@@ -6,21 +6,17 @@ import rlcp.generate.GeneratingResult;
 import rlcp.server.processor.generate.GenerateProcessor;
 import vlab.server_java.model.Variant;
 
-
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
-import static java.lang.Math.PI;
 import static java.lang.Math.log10;
-import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
-import static java.math.RoundingMode.HALF_DOWN;
 import static java.math.RoundingMode.HALF_UP;
-import static vlab.server_java.model.tool.ToolModel.*;
-import static vlab.server_java.model.util.Util.bd;
-import static vlab.server_java.model.util.Util.escapeParam;
-import static vlab.server_java.model.util.Util.shrink;
+import static vlab.server_java.model.tool.ToolModel.getQ;
+import static vlab.server_java.model.util.Util.*;
 
 /**
  * Simple GenerateProcessor implementation. Supposed to be changed as needed to
@@ -30,9 +26,10 @@ public class GenerateProcessorImpl implements GenerateProcessor {
 
 
     Random random = new Random(System.nanoTime());
-    private static int tauGammaPairsAmount = 11;
+    private static int tauGammaPairsAmount = 10;
     private static int gammaMinStep = 12;
     private static int gammaMaxStep = 28;
+    private static boolean makeDeviation = false;
 
     @Override
     public GeneratingResult generate(String condition) {
@@ -76,7 +73,6 @@ public class GenerateProcessorImpl implements GenerateProcessor {
             System.out.println("vvvvvvvvvvvvvvvvvvvvvv");
 
 
-
             List<BigDecimal[]> tauGammaPairs = new ArrayList<>(tauGammaPairsAmount);
             int previousGamma = 0;
             int gamma = 0;
@@ -93,7 +89,7 @@ public class GenerateProcessorImpl implements GenerateProcessor {
 
             }
 
-            {
+            if (makeDeviation) {
                 //making deviation
 
                 BigDecimal biggestTau = tauGammaPairs.get(tauGammaPairsAmount - 1)[0];
@@ -115,7 +111,6 @@ public class GenerateProcessorImpl implements GenerateProcessor {
                 BigDecimal tauEMinusSum = tauEMinus.stream().reduce((a, b) -> a.add(b)).get();
 
 
-
                 for (int i = 1; i < tauGammaPairsAmount; i++) {
                     tauEPlus.set(i, tauEPlus.get(i).divide(tauEPlusSum, HALF_UP));
                     tauEMinus.set(i, tauEMinus.get(i).divide(tauEMinusSum, HALF_UP));
@@ -134,39 +129,38 @@ public class GenerateProcessorImpl implements GenerateProcessor {
 
                 for (int i = 1; i < tauGammaPairsAmount; i++) {
                     BigDecimal newTau = tauGammaPairs.get(i)[0].add(tauEPlus.get(i)).subtract(tauEMinus.get(i));
-                    if (newTau.compareTo(ZERO) == 1){
+                    if (newTau.compareTo(ZERO) == 1) {
                         tauGammaPairs.get(i)[0] = newTau;
                     } else {
                         tauGammaPairs.get(i)[0] = tauGammaPairs.get(i)[0].multiply(bd(0.1));
                     }
                 }
-
-                BigDecimal tauSum = tauGammaPairs.stream().map(tg -> tg[0]).reduce((a,b) -> a.add(b)).get();
-                BigDecimal gammaSum = tauGammaPairs.stream().map(tg -> tg[1]).reduce((a, b) -> a.add(b)).get();
-
-                double firstHalflogTauSum = tauGammaPairs.stream().limit(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[0].doubleValue())).sum();
-                double secondHalflogTauSum = tauGammaPairs.stream().skip(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[0].doubleValue())).sum();
-
-                double firstHalflogGammaSum = tauGammaPairs.stream().limit(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[1].doubleValue())).sum();
-                double secondHalflogGammaSum = tauGammaPairs.stream().skip(tauGammaPairsAmount/2).mapToDouble(tauGamma -> log10(tauGamma[1].doubleValue())).sum();
-
-                double doubleN = (firstHalflogTauSum - secondHalflogTauSum) / (firstHalflogGammaSum - secondHalflogGammaSum);
-                double doubleK = Math.pow(10, ((firstHalflogTauSum + secondHalflogTauSum) - n.doubleValue() * (firstHalflogGammaSum + secondHalflogGammaSum)) / (tauGammaPairsAmount - 1));
-
-
-
-                n = shrink(bd(doubleN));
-                k = shrink(bd(doubleK));
-
-                System.out.println("n = " + n);
-                System.out.println("k = " + k);
-                System.out.println();
-
-                needed_Q = getQ(randomDelta_p, randomTubeRadius, tubeLength, k, n);
-
-                System.out.println("needed_Q = " + needed_Q);
-
             }
+
+
+//            BigDecimal tauSum = tauGammaPairs.stream().map(tg -> tg[0]).reduce((a, b) -> a.add(b)).get();
+//            BigDecimal gammaSum = tauGammaPairs.stream().map(tg -> tg[1]).reduce((a, b) -> a.add(b)).get();
+
+            double firstHalflogTauSum = tauGammaPairs.stream().limit(tauGammaPairsAmount / 2).mapToDouble(tauGamma -> log10(tauGamma[0].doubleValue())).sum();
+            double secondHalflogTauSum = tauGammaPairs.stream().skip(tauGammaPairsAmount / 2).mapToDouble(tauGamma -> log10(tauGamma[0].doubleValue())).sum();
+
+            double firstHalflogGammaSum = tauGammaPairs.stream().limit(tauGammaPairsAmount / 2).mapToDouble(tauGamma -> log10(tauGamma[1].doubleValue())).sum();
+            double secondHalflogGammaSum = tauGammaPairs.stream().skip(tauGammaPairsAmount / 2).mapToDouble(tauGamma -> log10(tauGamma[1].doubleValue())).sum();
+
+            double doubleN = (firstHalflogTauSum - secondHalflogTauSum) / (firstHalflogGammaSum - secondHalflogGammaSum);
+            double doubleK = Math.pow(10, ((firstHalflogTauSum + secondHalflogTauSum) - n.doubleValue() * (firstHalflogGammaSum + secondHalflogGammaSum)) / (tauGammaPairsAmount));
+
+
+            n = shrink(bd(doubleN));
+            k = shrink(bd(doubleK));
+
+            System.out.println("n = " + n);
+            System.out.println("k = " + k);
+            System.out.println();
+
+            needed_Q = getQ(randomDelta_p, randomTubeRadius, tubeLength, k, n);
+
+            System.out.println("needed_Q = " + needed_Q);
 
 
             Variant variant = new Variant(tauGammaPairs, tubeLength, needed_Q, ro);
@@ -187,7 +181,7 @@ public class GenerateProcessorImpl implements GenerateProcessor {
     }
 
     private double getRandomDoubleBetween(double a, double b) {
-        return (a + random.nextDouble() * (b-a));
+        return (a + random.nextDouble() * (b - a));
     }
 
 
