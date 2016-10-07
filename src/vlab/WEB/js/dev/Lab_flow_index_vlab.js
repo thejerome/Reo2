@@ -7,15 +7,16 @@ function init_lab() {
         MAX_PRESSURE_DROP = 500,
         tube_radius = MIN_TUBE_RADIUS,
         pressure_drop = MIN_PRESSURE_DROP,
-        viscosity_coefficient = 0,
+        flow_index = 0,
+        consistency_factor = 0,
         default_variant = {
-        tau_gamma_values: [
-            [0, 0], [34, 7], [65, 25], [78, 39], [88, 45], [98, 56], [120, 61], [132, 74], [152, 88], [170, 95]
-        ],
-        tube_length: 20,
-        needed_Q: 1.2,
-        ro: 1.386
-    },
+            tau_gamma_values: [
+                [0, 0], [34, 7], [65, 25], [78, 39], [88, 45], [98, 56], [120, 61], [132, 74], [152, 88], [170, 95]
+            ],
+            tube_length: 20,
+            needed_Q: 1.2,
+            ro: 1.386
+        },
         default_calculate_data = {Q: 1.386},
         radius_coefficient,
         pressure_coefficient,
@@ -24,41 +25,65 @@ function init_lab() {
         window =
         '<div class="vlab_setting">' +
         '<div class="block_title">' +
-        '<div class="vlab_name">����������� ����������� ������������ ������������ ��������</div>' +
-        '<input class="btn_help btn" type="button" value="�������"/></div>' +
-        '<div class="block_viscosity_plot"><svg width="450" height="220"></svg></div>' +
+        '<div class="vlab_name">Индекс течения и коэффициент консистенции <br /> жидкости Оствальда – Де Виля</div>' +
+        '<input class="btn_help btn" type="button" value="Справка"/></div>' +
+        '<div class="block_consistency_plot"><svg width="450" height="220"></svg></div>' +
         '<div class="block_control">' +
-        '<div class="control_tube_length">����� ����� <i>l</i>:<span class="tube_length_value value"></span>�</div>' +
-        '<div class="control_density">��������� &#961;:<span class="density_value value"></span><sup>��</sup>/<sub>�<sup>3</sup></sub></div>' +
-        '<div class="control_needed_volume">��������� �������� ������ <i>Q</i>: <span class="needed_volume_value value"></span><sup>�<sup>3</sup></sup>/<sub>�</sub></div>' +
-        '<label class="control_viscosity_coefficient">����������� ������������ �������� �������� &#956;: ' +
-        '<input type="number" min="0" step="0.001" value="' + viscosity_coefficient + '" class="viscosity_coefficient_value value" />��&#183;�</label>' +
+        '<div class="control_tube_length">Длина трубы <i>l</i>:<span class="tube_length_value value"></span>м</div>' +
+        '<div class="control_density">Плотность &#961;:<span class="density_value value"></span><sup>кг</sup>/<sub>м<sup>3</sup></sub></div>' +
+        '<div class="control_needed_volume">Требуемый объёмный расход <i>Q</i>: <span class="needed_volume_value value"></span><sup>м<sup>3</sup></sup>/<sub>с</sub></div>' +
+        '<label class="control_flow_index">Индекс течения <i>n</i>: ' +
+        '<input type="number" min="0" max="15" step="0.001" value="' + flow_index + '" class="flow_index_value value" /></label>' +
+        '<label class="control_consistency_factor">Коэффициент консистенции <i>k</i>: ' +
+        '<input type="number" min="0" step="0.001" value="' + consistency_factor + '" class="consistency_factor_value value" /></label>' +
         '</div>' +
-        '<div class="block_viscosity_table"><table><tbody><tr><td>���������� ������ &#964;<sub>i</sub>, ��</td></tr><tr><td>�������� ������ &#947;<sub>i</sub>, �<sup>-1</sup></td></tr></tbody></table></div>' +
+        '<div class="block_consistency_table"><table><tbody><tr><td>Напряжение сдвига &#964;<sub>i</sub>, Па</td></tr><tr><td>Скорость сдвига &#947;<sub>i</sub>, с<sup>-1</sup></td></tr></tbody></table></div>' +
         '<div class="block_tube_installation"><div class="tube_installation_control">' +
-        '<div><label for="control_tube_radius_slider">������ ����� <i>r</i>:</label><input class="control_tube_radius_slider" id="control_tube_radius_slider" type="range" ' +
+        '<div><label for="control_tube_radius_slider">Радиус трубы <i>r</i>:</label><input class="control_tube_radius_slider" id="control_tube_radius_slider" type="range" ' +
         'step="0.01" value="' + MIN_TUBE_RADIUS + '" min="' + MIN_TUBE_RADIUS + '" max="' + MAX_TUBE_RADIUS + '"/>' +
-        '<input class="control_tube_radius_value value" value="' + MIN_TUBE_RADIUS + '" min="' + MIN_TUBE_RADIUS + '" max="' + MAX_TUBE_RADIUS + '" type="number" step="0.01"/>�' +
-        '</div><div><label for="control_pressure_drop_slider">������� �������� <i>p</i>:</label><input class="control_pressure_drop_slider" id="control_pressure_drop_slider" type="range" ' +
+        '<input class="control_tube_radius_value value" value="' + MIN_TUBE_RADIUS + '" min="' + MIN_TUBE_RADIUS + '" max="' + MAX_TUBE_RADIUS + '" type="number" step="0.01"/>м' +
+        '</div><div><label for="control_pressure_drop_slider">Перепад давлений <i>p</i>:</label><input class="control_pressure_drop_slider" id="control_pressure_drop_slider" type="range" ' +
         'step="1" value="' + MIN_PRESSURE_DROP + '" min="' + MIN_PRESSURE_DROP + '" max="' + MAX_PRESSURE_DROP + '"/>' +
-        '<input class="control_pressure_drop_value value" value="' + MIN_PRESSURE_DROP + '" min="' + MIN_PRESSURE_DROP + '" max="' + MAX_PRESSURE_DROP + '" type="number" step="1"/>���' +
+        '<input class="control_pressure_drop_value value" value="' + MIN_PRESSURE_DROP + '" min="' + MIN_PRESSURE_DROP + '" max="' + MAX_PRESSURE_DROP + '" type="number" step="1"/>кПа' +
         '</div></div>' +
-        '<div class="canvas_container"><canvas width="660" height="200px" class="tube_canvas">������� �� ������������ canvas</canvas></div>' +
-        '<input type="button" class="btn btn_play" value="���������" />' +
-        '<div class="result_volume">���������� �������� ������ <i>Q</i>: <span class="result_volume_value value"></span><sup>�<sup>3</sup></sup>/<sub>�</sub></div></div>' +
-        '<div class="block_help">�������</div>' +
-        '<div class="block_loading"><div class="waiting_loading"><img width="100%" height="100%" src="img/Lab_dynamic_viscosity_hourglass.png"/></div></div>' +
+        '<div class="canvas_container"><canvas width="660" height="200px" class="tube_canvas">Браузер не поддерживает canvas</canvas></div>' +
+        '<input type="button" class="btn btn_play" value="Запустить" />' +
+        '<div class="result_volume">Полученный объёмный расход <i>Q</i>: <span class="result_volume_value value"></span><sup>м<sup>3</sup></sup>/<sub>с</sub></div></div>' +
+        '<div class="block_help"><h1>Помощь по работе в виртуальной лаборатории</h1>' +
+        '<p>Данные эксперимента: значения напряжений <img src="img/Lab_flow_index_math_1.png" /> и скоростей сдвига <img src="img/Lab_flow_index_math_2.png" /> помещены в таблицу.</p>' +
+        '<p>Cреда - степенная жидкость, которая описывается законом Оствальда - Де Виля: <img src="img/Lab_flow_index_math_3.png" />, ' +
+        'где <img src="img/Lab_flow_index_math_4.png" /> - реологическая константа, коэффициент консистенции, <img src="img/Lab_flow_index_math_5.png" /> - ' +
+        'реологическая константа, индекс течения.</p>' +
+        '<p>Если индекс течения <img src="img/Lab_flow_index_math_5.png" /> меньше единицы, то кривая течения искривляется вверх, если больше единицы - то вправо, ' +
+        'если равен единице - ' +
+        'то это не степенная жидкость, а ньютоновская и коэффициент консистенции <img src="img/Lab_flow_index_math_4.png" /> является коэффициентом динамической вязкости.</p>' +
+        '<p>Вам необходимо рассчитать по методу средних реологические константы степенной жидкости <img src="img/Lab_flow_index_math_4.png" /> и <img src="img/Lab_flow_index_math_5.png" />, пересчитав данные ' +
+        'таблицы в логарифмах (линеаризация  степенной зависимости) следующим образом:' +
+        '<div class="inline_img"><img src="img/Lab_flow_index_math_6.png" />;</div>' +
+        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_7.png" />;</div>' +
+        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_8.png" />;</div>' +
+        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_9.png" />;</div>' +
+        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_10.png" />;</div>' +
+        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_11.png" />.</div></p>' +
+        '<p>Подставьте полученные значения в поля для <img src="img/Lab_flow_index_math_4.png" /> и <img src="img/Lab_flow_index_math_5.png" />.' +
+        ' Визуально оцените, описывает ли кривая с полученными ' +
+        'коэффициентами данный эксперимент, что является подтверждением правильности выполненных расчётов.</p>' +
+        '<p>Следующая задача практикума - сконфигурировать трубу (найти её геометрические параметры и ' +
+        'характеристики течения данной среды в трубе ), чтобы достичь требуемого расхода материала.'+
+        'Вы можете менять значения в соответствующих полях, чтобы получить необходимый расход материала.</p>' +
+        '</div>' +
+        '<div class="block_loading"><div class="waiting_loading"><img width="100%" height="100%" src="img/Lab_flow_index_hourglass.png"/></div></div>' +
         '</div>';
 
     function show_help() {
         if (!help_active) {
             help_active = true;
             $(".block_help").css("display", "block");
-            $(".btn_help").attr("value", "���������");
+            $(".btn_help").attr("value", "Вернуться");
         } else {
             help_active = false;
             $(".block_help").css("display", "none");
-            $(".btn_help").attr("value", "�������");
+            $(".btn_help").attr("value", "Справка");
         }
     }
 
@@ -197,7 +222,7 @@ function init_lab() {
         pressure_drop = $(".control_pressure_drop_value").val();
     }
 
-    function init_plot(data, plot_selector, width, height, tangent) {
+    function init_plot(data, plot_selector, width, height, n, k) {
         $(plot_selector).empty();
         var plot = d3.select(plot_selector),
             MARGINS = {
@@ -206,16 +231,12 @@ function init_lab() {
                 bottom: 20,
                 left: 50
             },
-            x_range = d3.scale.linear().range([MARGINS.left, width - MARGINS.right]).domain([d3.min(data, function (d) {
-                return d[1];
-            }),
+            x_range = d3.scale.linear().range([MARGINS.left, width - MARGINS.right]).domain([0,
                 d3.max(data, function (d) {
                     return d[1];
                 })
             ]),
-            y_range = d3.scale.linear().range([height - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function (d) {
-                return d[0];
-            }),
+            y_range = d3.scale.linear().range([height - MARGINS.top, MARGINS.bottom]).domain([0,
                 d3.max(data, function (d) {
                     return d[0];
                 })
@@ -247,25 +268,32 @@ function init_lab() {
             .style("fill", "#248118");
         plot.append("text")
             .attr("text-anchor", "middle")
-            .attr("transform", "translate(35, 22)")
+            .attr("transform", "translate(35, 16)")
             .style("font-size","24px")
             .html("&#964;");
         plot.append("text")
             .attr("text-anchor", "middle")
-            .attr("transform", "translate("+ (width-10) +","+(height-10)+")")
+            .attr("transform", "translate("+ (width-8) +","+(height-10)+")")
             .style("font-size","22px")
             .html("&#947;");
-        if (tangent) {
-            var lineFunc = d3.svg.line()
+        if (n || k) {
+            var line_function = d3.svg.line()
                 .x(function (d) {
-                    return x_range(d[1]);
+                    return x_range(d);
                 })
                 .y(function (d) {
-                    return y_range(d[1]*tangent);
-                });
+                    return y_range(k*Math.pow(d, n));
+                })
+                .interpolate('basis');
+            var line_data = [];
+            for (var i=0; i < d3.max(data, function (d) {
+                return d[1];
+            }); i=i+0.2){
+                line_data.push(i);
+            }
             plot.append("svg:path")
-                .datum(data)
-                .attr("d", lineFunc)
+                .datum(line_data)
+                .attr("d", line_function)
                 .attr("stroke", "blue")
                 .attr("stroke-width", 2)
                 .attr("fill", "none");
@@ -276,11 +304,11 @@ function init_lab() {
         $(".tube_length_value").html(generate_data.tube_length);
         $(".density_value").html(generate_data.ro);
         $(".needed_volume_value").html(generate_data.needed_Q);
-        init_plot(generate_data.tau_gamma_values, ".block_viscosity_plot svg",
-            $(".block_viscosity_plot svg").attr("width"), $(".block_viscosity_plot svg").attr("height"));
+        init_plot(generate_data.tau_gamma_values, ".block_consistency_plot svg",
+            $(".block_consistency_plot svg").attr("width"), $(".block_consistency_plot svg").attr("height"));
         for (var i=0; i < generate_data.tau_gamma_values.length; i++){
-            $(".block_viscosity_table tr:first-child").append("<td>" + generate_data.tau_gamma_values[i][0] + "</td>");;
-            $(".block_viscosity_table tr:nth-child(2)").append("<td>" + generate_data.tau_gamma_values[i][1] + "</td>");;
+            $(".block_consistency_table tr:first-child").append("<td>" + generate_data.tau_gamma_values[i][0] + "</td>");;
+            $(".block_consistency_table tr:nth-child(2)").append("<td>" + generate_data.tau_gamma_values[i][1] + "</td>");;
         }
         radius_coefficient = create_radius_coefficient(MIN_TUBE_RADIUS);
         pressure_coefficient = create_pressure_coefficient(MIN_PRESSURE_DROP);
@@ -347,10 +375,12 @@ function init_lab() {
         change_pressure_drop_value();
         pressure_coefficient = create_pressure_coefficient($(".control_pressure_drop_slider").val());
         draw_tube($(".tube_canvas"), radius_coefficient, pressure_coefficient);
-        $(".viscosity_coefficient_value").val(previous_solution.mu);
-        viscosity_coefficient = previous_solution.mu;
-        init_plot(laboratory_variant.tau_gamma_values, ".block_viscosity_plot svg",
-            $(".block_viscosity_plot svg").attr("width"), $(".block_viscosity_plot svg").attr("height"), viscosity_coefficient);
+        $(".consistency_factor_value").val(previous_solution.k);
+        $(".flow_index_value").val(previous_solution.n);
+        consistency_factor = previous_solution.k;
+        flow_index = previous_solution.n;
+        init_plot(laboratory_variant.tau_gamma_values, ".block_consistency_plot svg",
+            $(".block_consistency_plot svg").attr("width"), $(".block_consistency_plot svg").attr("height"), flow_index, consistency_factor);
     }
 
     function create_radius_coefficient(current_radius){
@@ -411,13 +441,23 @@ function init_lab() {
             $(".btn_play").click(function () {
                 launch();
             });
-            $(".viscosity_coefficient_value").change(function () {
+            $(".flow_index_value").change(function () {
+                if ($(this).val() <= 0) {
+                    $(this).val(0)
+                } else if ($(this).val() > $(".flow_index_value").attr("max")) {
+                    $(this).val($(".flow_index_value").attr("max"))
+                }
+                flow_index = $(this).val();
+                init_plot(laboratory_variant.tau_gamma_values, ".block_consistency_plot svg",
+                    $(".block_consistency_plot svg").attr("width"), $(".block_consistency_plot svg").attr("height"), flow_index, consistency_factor);
+            });
+            $(".consistency_factor_value").change(function () {
                 if ($(this).val() <= 0) {
                     $(this).val(0)
                 }
-                viscosity_coefficient = $(this).val();
-                init_plot(laboratory_variant.tau_gamma_values, ".block_viscosity_plot svg",
-                    $(".block_viscosity_plot svg").attr("width"), $(".block_viscosity_plot svg").attr("height"), $(this).val());
+                consistency_factor = $(this).val();
+                init_plot(laboratory_variant.tau_gamma_values, ".block_consistency_plot svg",
+                    $(".block_consistency_plot svg").attr("width"), $(".block_consistency_plot svg").attr("height"), flow_index, consistency_factor);
             });
         },
         calculateHandler: function () {
@@ -425,11 +465,11 @@ function init_lab() {
             unfreeze_installation(calculate_data);
         },
         getResults: function () {
-            var answer = {mu: viscosity_coefficient, delta_p: pressure_drop, tube_radius: tube_radius};
+            var answer = {k: consistency_factor, n: flow_index, delta_p: pressure_drop, tube_radius: tube_radius};
             return JSON.stringify(answer);
         },
         getCondition: function () {
-            var condition = {mu: viscosity_coefficient, delta_p: pressure_drop, tube_radius: tube_radius};
+            var condition = {k: consistency_factor, n: flow_index, delta_p: pressure_drop, tube_radius: tube_radius};
             return JSON.stringify(condition);
         }
     }
