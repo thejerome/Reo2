@@ -33,10 +33,10 @@
 
 .block_title .vlab_name {
     display: inline-block;
-    text-align: left;
+    text-align: center;
 }
 
-.block_viscosity_plot {
+.block_consistency_plot {
     width: 60%;
     border-top: 1px solid #4f5e6d;
     box-sizing: border-box;
@@ -74,11 +74,11 @@
     margin-right: 5px;
 }
 
-.viscosity_coefficient_value {
+.flow_index_value, .consistency_factor_value {
     width: 25%;
 }
 
-.block_viscosity_table {
+.block_consistency_table {
     width: 100%;
     height: 150px;
     display: flex;
@@ -89,7 +89,7 @@
     overflow-x: auto;
 }
 
-.block_viscosity_table table {
+.block_consistency_table table {
     background: #ffffff;
     border-spacing: 0;
     width: 96%;
@@ -99,16 +99,16 @@
     table-layout: fixed;
 }
 
-.block_viscosity_table table td {
+.block_consistency_table table td {
     padding: 5px;
     border: 1px solid #3d4652;
 }
 
-.block_viscosity_table table tr {
+.block_consistency_table table tr {
     height: 40px;
 }
 
-.block_viscosity_table tr td:first-child {
+.block_consistency_table tr td:first-child {
     width: 180px;
     text-align: left;
     background: #eeeeee;
@@ -152,7 +152,7 @@
 }
 
 .tube_installation_control label {
-   margin-right: 40%;
+    margin-right: 40%;
 }
 
 .control_tube_radius_slider, .control_pressure_drop_slider {
@@ -172,7 +172,8 @@
 }
 
 .result_volume {
-    margin-left: 50%;
+    margin-left: 40%;
+    width: 60%;
     font-weight: bold;
     font-size: 18px;
     visibility: hidden;
@@ -187,11 +188,39 @@
     position: absolute;
     top: 60px;
     left: 0;
-    height: 640px;
+    height: 670px;
     border-top: 1px solid #3d4652;
     background-color: #ffffff;
     padding: 15px;
     font-size: 14px;
+    overflow-y: auto;
+}
+
+.block_help > h1 {
+    font-size: 24px;
+    margin-top: 5px;
+}
+
+.block_help > p {
+    text-indent: 40px;
+    font-size: 18px;
+    margin-top: 10px;
+    margin-bottom: 0;
+    text-align: justify;
+}
+
+div.inline_img {
+    width: 100%;
+    text-align: center;
+}
+
+.block_help > p.small_paragraph {
+    font-size: 16px;
+    text-indent: 0;
+}
+
+.block_help img {
+    vertical-align: middle;
 }
 
 .btn {
@@ -206,7 +235,7 @@
     border: 1px solid #eea236;
     outline: none;
     border-radius: 13px;
-    min-width: 90px;
+    min-width: 120px;
     color: #fff;
     height: 39px;
     background-image: linear-gradient(to bottom, #FBC579, #fbb450);
@@ -224,17 +253,17 @@
     margin: 0;
 }
 
-.block_viscosity_plot .axis path, .block_viscosity_plot .axis line {
+.block_consistency_plot .axis path, .block_consistency_plot .axis line {
     fill: none;
     stroke: #777777;
     shape-rendering: crispEdges;
 }
 
-.block_viscosity_plot .axis text {
+.block_consistency_plot .axis text {
     font-size: 13px;
 }
 
-.block_viscosity_plot .tick {
+.block_consistency_plot .tick {
     stroke-dasharray: 2, 2;
 }
 
