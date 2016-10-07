@@ -443,9 +443,9 @@ function init_lab() {
             });
             $(".flow_index_value").change(function () {
                 if ($(this).val() <= 0) {
-                    $(this).val(0)
-                } else if ($(this).val() > $(".flow_index_value").attr("max")) {
-                    $(this).val($(".flow_index_value").attr("max"))
+                    $(this).val(0);
+                } else if (parseInt($(this).val()) > parseInt($(".flow_index_value").attr("max"))) {
+                    $(this).val($(".flow_index_value").attr("max"));
                 }
                 flow_index = $(this).val();
                 init_plot(laboratory_variant.tau_gamma_values, ".block_consistency_plot svg",
