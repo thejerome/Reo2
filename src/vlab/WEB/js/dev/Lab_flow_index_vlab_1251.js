@@ -23,54 +23,54 @@ function init_lab() {
         laboratory_variant,
         timeout_jelly_running,
         window =
-        '<div class="vlab_setting">' +
-        '<div class="block_title">' +
-        '<div class="vlab_name">Индекс течения и коэффициент консистенции <br /> жидкости Оствальда – Де Виля</div>' +
-        '<input class="btn_help btn" type="button" value="Справка"/></div>' +
-        '<div class="block_consistency_plot"><svg width="450" height="220"></svg></div>' +
-        '<div class="block_control">' +
-        '<div class="control_tube_length">Длина трубы <i>l</i>:<span class="tube_length_value value"></span>м</div>' +
-        '<div class="control_density">Плотность &#961;:<span class="density_value value"></span><sup>кг</sup>/<sub>м<sup>3</sup></sub></div>' +
-        '<div class="control_needed_volume">Требуемый объёмный расход <i>Q</i>: <span class="needed_volume_value value"></span><sup>м<sup>3</sup></sup>/<sub>с</sub></div>' +
-        '<label class="control_flow_index">Индекс течения <i>n</i>: ' +
-        '<input type="number" min="0" max="15" step="0.001" value="' + flow_index + '" class="flow_index_value value" /></label>' +
-        '<label class="control_consistency_factor">Коэффициент консистенции <i>k</i>: ' +
-        '<input type="number" min="0" step="0.001" value="' + consistency_factor + '" class="consistency_factor_value value" /></label>' +
-        '</div>' +
-        '<div class="block_consistency_table"><table><tbody><tr><td>Напряжение сдвига &#964;<sub>i</sub>, Па</td></tr><tr><td>Скорость сдвига &#947;<sub>i</sub>, с<sup>-1</sup></td></tr></tbody></table></div>' +
-        '<div class="block_tube_installation"><div class="tube_installation_control">' +
-        '<div><label for="control_tube_radius_slider">Радиус трубы <i>r</i>:</label><input class="control_tube_radius_slider" id="control_tube_radius_slider" type="range" ' +
-        'step="0.01" value="' + MIN_TUBE_RADIUS + '" min="' + MIN_TUBE_RADIUS + '" max="' + MAX_TUBE_RADIUS + '"/>' +
-        '<input class="control_tube_radius_value value" value="' + MIN_TUBE_RADIUS + '" min="' + MIN_TUBE_RADIUS + '" max="' + MAX_TUBE_RADIUS + '" type="number" step="0.01"/>м' +
-        '</div><div><label for="control_pressure_drop_slider">Перепад давлений <i>p</i>:</label><input class="control_pressure_drop_slider" id="control_pressure_drop_slider" type="range" ' +
-        'step="1" value="' + MIN_PRESSURE_DROP + '" min="' + MIN_PRESSURE_DROP + '" max="' + MAX_PRESSURE_DROP + '"/>' +
-        '<input class="control_pressure_drop_value value" value="' + MIN_PRESSURE_DROP + '" min="' + MIN_PRESSURE_DROP + '" max="' + MAX_PRESSURE_DROP + '" type="number" step="1"/>кПа' +
-        '</div></div>' +
-        '<div class="canvas_container"><canvas width="660" height="200px" class="tube_canvas">Браузер не поддерживает canvas</canvas></div>' +
-        '<input type="button" class="btn btn_play" value="Запустить" />' +
-        '<div class="result_volume">Полученный объёмный расход <i>Q</i>: <span class="result_volume_value value"></span><sup>м<sup>3</sup></sup>/<sub>с</sub></div></div>' +
-        '<div class="block_help"><h1>Помощь по работе в виртуальной лаборатории</h1>' +
-        '<p>Данные эксперимента: значения напряжений <img src="img/Lab_flow_index_math_1.png" /> и скоростей сдвига <img src="img/Lab_flow_index_math_2.png" /> помещены в таблицу.</p>' +
-        '<p>Cреда - степенная жидкость, которая описывается законом Оствальда - Де Виля: <img src="img/Lab_flow_index_math_3.png" />, ' +
-        'где <img src="img/Lab_flow_index_math_4.png" /> - реологическая константа, коэффициент консистенции, <img src="img/Lab_flow_index_math_5.png" /> - ' +
-        'реологическая константа, индекс течения.</p>' +
-        '<p>Вам необходимо рассчитать по методу средних реологические константы степенной жидкости <img src="img/Lab_flow_index_math_4.png" /> и <img src="img/Lab_flow_index_math_5.png" />, пересчитав данные ' +
-        'таблицы в логарифмах (линеаризация  степенной зависимости) следующим образом:' +
-        '<div class="inline_img"><img src="img/Lab_flow_index_math_6.png" />;</div>' +
-        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_7.png" />;</div>' +
-        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_8.png" />;</div>' +
-        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_9.png" />;</div>' +
-        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_10.png" />;</div>' +
-        '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_11.png" />.</div></p>' +
-        '<p>Подставьте полученные значения в поля для <img src="img/Lab_flow_index_math_4.png" /> и <img src="img/Lab_flow_index_math_5.png" />.' +
-        ' Визуально оцените, описывает ли кривая с полученными ' +
-        'коэффициентами данный эксперимент, что является подтверждением правильности выполненных расчётов.</p>' +
-        '<p>Следующая задача практикума - сконфигурировать трубу (найти её геометрические параметры и ' +
-        'характеристики течения данной среды в трубе ), чтобы достичь требуемого расхода материала.'+
-        'Вы можете менять значения в соответствующих полях, чтобы получить необходимый расход материала.</p>' +
-        '</div>' +
-        '<div class="block_loading"><div class="waiting_loading"><img width="100%" height="100%" src="img/Lab_flow_index_hourglass.png"/></div></div>' +
-        '</div>';
+            '<div class="vlab_setting">' +
+            '<div class="block_title">' +
+            '<div class="vlab_name">Индекс течения и коэффициент консистенции <br /> жидкости Оствальда – Де Виля</div>' +
+            '<input class="btn_help btn" type="button" value="Справка"/></div>' +
+            '<div class="block_consistency_plot"><svg width="450" height="220"></svg></div>' +
+            '<div class="block_control">' +
+            '<div class="control_tube_length">Длина трубы <i>l</i>:<span class="tube_length_value value"></span>м</div>' +
+            '<div class="control_density">Плотность &#961;:<span class="density_value value"></span><sup>кг</sup>/<sub>м<sup>3</sup></sub></div>' +
+            '<div class="control_needed_volume">Требуемый объёмный расход <i>Q</i>:<br /> <span class="needed_volume_value value"></span><sup>м<sup>3</sup></sup>/<sub>с</sub></div>' +
+            '<label class="control_flow_index">Индекс течения <i>n</i>: ' +
+            '<input type="number" min="0" max="15" step="0.001" value="' + flow_index + '" class="flow_index_value value" /></label>' +
+            '<label class="control_consistency_factor">Коэффициент консистенции <i>k</i>: ' +
+            '<input type="number" min="0" step="0.001" value="' + consistency_factor + '" class="consistency_factor_value value" /></label>' +
+            '</div>' +
+            '<div class="block_consistency_table"><table><tbody><tr><td>Напряжение сдвига &#964;<sub>i</sub>, Па</td></tr><tr><td>Скорость сдвига &#947;<sub>i</sub>, с<sup>-1</sup></td></tr></tbody></table></div>' +
+            '<div class="block_tube_installation"><div class="tube_installation_control">' +
+            '<div><label for="control_tube_radius_slider">Радиус трубы <i>r</i>:</label><input class="control_tube_radius_slider" id="control_tube_radius_slider" type="range" ' +
+            'step="0.01" value="' + MIN_TUBE_RADIUS + '" min="' + MIN_TUBE_RADIUS + '" max="' + MAX_TUBE_RADIUS + '"/>' +
+            '<input class="control_tube_radius_value value" value="' + MIN_TUBE_RADIUS + '" min="' + MIN_TUBE_RADIUS + '" max="' + MAX_TUBE_RADIUS + '" type="number" step="0.01"/>м' +
+            '</div><div><label for="control_pressure_drop_slider">Перепад давлений <i>p</i>:</label><input class="control_pressure_drop_slider" id="control_pressure_drop_slider" type="range" ' +
+            'step="1" value="' + MIN_PRESSURE_DROP + '" min="' + MIN_PRESSURE_DROP + '" max="' + MAX_PRESSURE_DROP + '"/>' +
+            '<input class="control_pressure_drop_value value" value="' + MIN_PRESSURE_DROP + '" min="' + MIN_PRESSURE_DROP + '" max="' + MAX_PRESSURE_DROP + '" type="number" step="1"/>кПа' +
+            '</div></div>' +
+            '<div class="canvas_container"><canvas width="660" height="200px" class="tube_canvas">Браузер не поддерживает canvas</canvas></div>' +
+            '<input type="button" class="btn btn_play" value="Запустить" />' +
+            '<div class="result_volume">Полученный объёмный расход <i>Q</i>: <span class="result_volume_value value"></span><sup>м<sup>3</sup></sup>/<sub>с</sub></div></div>' +
+            '<div class="block_help"><h1>Помощь по работе в виртуальной лаборатории</h1>' +
+            '<p>Данные эксперимента: значения напряжений <img src="img/Lab_flow_index_math_1.png" /> и скоростей сдвига <img src="img/Lab_flow_index_math_2.png" /> помещены в таблицу.</p>' +
+            '<p>Cреда - степенная жидкость, которая описывается законом Оствальда - Де Виля: <img src="img/Lab_flow_index_math_3.png" />, ' +
+            'где <img src="img/Lab_flow_index_math_4.png" /> - реологическая константа, коэффициент консистенции, <img src="img/Lab_flow_index_math_5.png" /> - ' +
+            'реологическая константа, индекс течения.</p>' +
+            '<p>Вам необходимо рассчитать по методу средних реологические константы степенной жидкости <img src="img/Lab_flow_index_math_4.png" /> и <img src="img/Lab_flow_index_math_5.png" />, пересчитав данные ' +
+            'таблицы в логарифмах (линеаризация  степенной зависимости) следующим образом:' +
+            '<div class="inline_img"><img src="img/Lab_flow_index_math_6.png" />;</div>' +
+            '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_7.png" />;</div>' +
+            '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_8.png" />;</div>' +
+            '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_9.png" />;</div>' +
+            '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_10.png" />;</div>' +
+            '<div class="inline_img"><img class="inline_img" src="img/Lab_flow_index_math_11.png" />.</div></p>' +
+            '<p>Подставьте полученные значения в поля для <img src="img/Lab_flow_index_math_4.png" /> и <img src="img/Lab_flow_index_math_5.png" />.' +
+            ' Визуально оцените, описывает ли кривая с полученными ' +
+            'коэффициентами данный эксперимент, что является подтверждением правильности выполненных расчётов.</p>' +
+            '<p>Следующая задача практикума - сконфигурировать трубу (найти её геометрические параметры и ' +
+            'характеристики течения данной среды в трубе ), чтобы достичь требуемого расхода материала.'+
+            'Вы можете менять значения в соответствующих полях, чтобы получить необходимый расход материала.</p>' +
+            '</div>' +
+            '<div class="block_loading"><div class="waiting_loading"><img width="100%" height="100%" src="img/Lab_flow_index_hourglass.png"/></div></div>' +
+            '</div>';
 
     function show_help() {
         if (!help_active) {
@@ -300,7 +300,7 @@ function init_lab() {
     function fill_installation(generate_data) {
         $(".tube_length_value").html(generate_data.tube_length);
         $(".density_value").html(generate_data.ro);
-        $(".needed_volume_value").html(generate_data.needed_Q);
+        $(".needed_volume_value").html(generate_data.needed_Q + ' +/- 1%');
         init_plot(generate_data.tau_gamma_values, ".block_consistency_plot svg",
             $(".block_consistency_plot svg").attr("width"), $(".block_consistency_plot svg").attr("height"));
         for (var i=0; i < generate_data.tau_gamma_values.length; i++){
@@ -324,7 +324,7 @@ function init_lab() {
         draw_tube($(".tube_canvas"), radius_coefficient, pressure_coefficient);
         $(".block_loading").removeClass("active_waiting");
     }
-    
+
     function launch() {
         freeze_installation();
         ANT.calculate();
