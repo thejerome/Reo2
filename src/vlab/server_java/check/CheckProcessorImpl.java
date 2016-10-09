@@ -15,6 +15,7 @@ import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 import static vlab.server_java.model.util.Util.bd;
 import static vlab.server_java.model.util.Util.prepareInputJsonString;
+import static vlab.server_java.model.util.Util.shrink;
 
 /**
  * Simple CheckProcessor implementation. Supposed to be changed as needed to provide
@@ -37,12 +38,13 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             BigDecimal realN = new BigDecimal(secret[1]);
             BigDecimal realQ = variant.getNeeded_Q();
 
-            BigDecimal solutionQ = ToolModel.getQ(solution.getDelta_p(), solution.getTube_radius(), variant.getTube_length(), realK, realN);
             BigDecimal solutionK = solution.getK();
             BigDecimal solutionN = solution.getN();
+            BigDecimal solutionQ = shrink(ToolModel.getQ(solution.getDelta_p(), solution.getTube_radius(), variant.getTube_length(), solutionK, solutionN));
 
-            boolean isKOk = realK.subtract(solutionK).abs().compareTo(bd(0.01)) <= 0;
-            boolean isNOk = realN.subtract(solutionN).abs().compareTo(bd(0.01)) <= 0;
+
+            boolean isKOk = realK.subtract(solutionK).abs().compareTo(realK.multiply(bd(0.01))) <= 0;
+            boolean isNOk = realN.subtract(solutionN).abs().compareTo(realN.multiply(bd(0.01))) <= 0;
             boolean isQOk = realQ.subtract(solutionQ).abs().compareTo(realQ.multiply(bd(0.01))) <= 0;
 
             if(isKOk && isNOk){
